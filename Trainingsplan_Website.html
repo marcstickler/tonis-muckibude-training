@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tonis Muckibude Training</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#2d3748}
+
+    header{background:linear-gradient(135deg,#2b6cb0 0%,#2c7a7b 100%);color:white;padding:36px 20px 28px;text-align:center}
+    header h1{font-size:1.9rem;margin-bottom:8px}
+    header p{font-size:.95rem;opacity:.88;max-width:580px;margin:0 auto}
+    .badge-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
+    .badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:4px 13px;font-size:.8rem;font-weight:600}
+
+    .tab-bar{display:flex;justify-content:center;background:#fff;border-bottom:2px solid #e2e8f0;position:sticky;top:0;z-index:100;box-shadow:0 2px 6px rgba(0,0,0,.07)}
+    .tab-btn{padding:13px 24px;border:none;background:none;font-size:.93rem;font-weight:600;color:#718096;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+    .tab-btn:hover{color:#2b6cb0}
+    .tab-btn.active{color:#2b6cb0;border-bottom-color:#2b6cb0}
+
+    .section{display:none;padding:26px 16px 60px;max-width:960px;margin:0 auto}
+    .section.active{display:block}
+
+    .info-box{background:#ebf8ff;border-left:4px solid #3182ce;border-radius:8px;padding:13px 17px;margin-bottom:24px;font-size:.88rem;line-height:1.65}
+    .info-box strong{color:#2b6cb0}
+
+    /* WEEK GRID */
+    .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:28px}
+    @media(max-width:600px){.week-grid{grid-template-columns:repeat(4,1fr)}}
+    .day-card{background:white;border-radius:11px;padding:12px 6px;text-align:center;cursor:pointer;border:2px solid transparent;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:all .2s}
+    .day-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+    .day-card.active-day{border-color:#2b6cb0;background:#ebf8ff}
+    .day-card .day-name{font-weight:700;font-size:.97rem;margin-bottom:3px}
+    .day-card .day-icon{font-size:1.5rem;margin:5px 0 4px}
+    .day-card .day-type{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+    .type-kraft{color:#c05621}.type-ausdauer{color:#276749}.type-mobil{color:#553c9a}.type-ruhe{color:#718096}
+    .bg-kraft{background:#fff5eb!important;border-color:#f6ad55!important}
+    .bg-ausdauer{background:#f0fff4!important;border-color:#68d391!important}
+    .bg-mobil{background:#faf5ff!important;border-color:#b794f4!important}
+    .bg-ruhe{background:#f7fafc!important;border-color:#cbd5e0!important}
+
+    /* DETAIL PANEL */
+    .detail-panel{background:white;border-radius:14px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:20px}
+    .detail-panel h2{font-size:1.3rem;margin-bottom:4px;color:#1a365d}
+    .detail-subtitle{font-size:.85rem;color:#718096;margin-bottom:16px}
+    .pill{display:inline-block;padding:3px 11px;border-radius:20px;font-size:.76rem;font-weight:600;margin-bottom:14px}
+    .pill-kraft{background:#feebc8;color:#c05621}
+    .pill-ausdauer{background:#c6f6d5;color:#276749}
+    .pill-mobil{background:#e9d8fd;color:#553c9a}
+    .pill-ruhe{background:#edf2f7;color:#718096}
+
+    .section-title{font-size:1rem;font-weight:700;color:#2d3748;margin:18px 0 10px;padding-left:10px;border-left:4px solid #3182ce}
+
+    /* TIME BAR */
+    .time-bar{display:flex;gap:6px;margin:14px 0 20px;flex-wrap:wrap}
+    .time-block{flex:1;min-width:80px;border-radius:8px;padding:9px 10px;text-align:center}
+    .time-block .tb-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+    .time-block .tb-val{font-size:1.1rem;font-weight:700}
+    .tb-warm{background:#fef3c7;color:#92400e}
+    .tb-main{background:#dbeafe;color:#1e40af}
+    .tb-cool{background:#d1fae5;color:#065f46}
+    .tb-total{background:#f3e8ff;color:#5b21b6}
+
+    /* EXERCISE CARDS */
+    .ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:6px}
+    .ex-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start}
+    .ex-svg{flex-shrink:0;width:82px;height:96px;border-radius:8px;background:white;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center}
+    .ex-svg svg{width:76px;height:90px}
+    .ex-info{flex:1;min-width:0}
+    .ex-name{font-weight:700;font-size:.92rem;color:#1a365d;margin-bottom:5px;line-height:1.3}
+    .ex-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+    .ex-tag{background:#e2e8f0;border-radius:12px;padding:2px 9px;font-size:.74rem;font-weight:600;color:#4a5568}
+    .ex-tag.green{background:#c6f6d5;color:#276749}
+    .ex-tip{font-size:.8rem;color:#718096;line-height:1.5}
+
+    /* REST INDICATOR */
+    .rest-note{background:#fffbeb;border-radius:8px;padding:10px 14px;font-size:.84rem;color:#92400e;margin:12px 0;border-left:3px solid #f6ad55}
+
+    /* WARM/COOL LIST */
+    .wc-list{list-style:none}
+    .wc-list li{padding:6px 0 6px 22px;position:relative;font-size:.88rem;border-bottom:1px solid #f0f0f0;color:#4a5568}
+    .wc-list li::before{content:"›";position:absolute;left:0;color:#3182ce;font-weight:bold;font-size:1rem}
+    .wc-list li:last-child{border-bottom:none}
+
+    /* NUTRITION */
+    .meal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+    @media(max-width:600px){.meal-grid{grid-template-columns:1fr}}
+    .meal-card{background:white;border-radius:12px;padding:18px;box-shadow:0 1px 5px rgba(0,0,0,.07)}
+    .meal-card h3{font-size:.93rem;margin-bottom:10px;color:#1a365d}
+    .meal-card ul{list-style:none}
+    .meal-card ul li{font-size:.85rem;padding:5px 0 5px 17px;position:relative;border-bottom:1px solid #f0f0f0}
+    .meal-card ul li::before{content:"•";position:absolute;left:0;color:#3182ce}
+    .meal-card ul li:last-child{border-bottom:none}
+    .nutr-tip{background:#fffbeb;border-left:4px solid #f6ad55;border-radius:8px;padding:11px 15px;font-size:.86rem;margin:10px 0;line-height:1.6}
+    .week-nutr{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:18px 0}
+    @media(max-width:580px){.week-nutr{grid-template-columns:repeat(4,1fr)}}
+    .nutr-day{background:white;border-radius:9px;padding:10px 7px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06);font-size:.78rem}
+    .nutr-day .nd{font-weight:700;margin-bottom:4px;color:#2b6cb0}
+    .nutr-day .nc{color:#718096;font-size:.7rem;line-height:1.4}
+    .tip-list{list-style:none;margin-top:10px}
+    .tip-list li{padding:7px 0 7px 24px;position:relative;font-size:.88rem;border-bottom:1px solid #f0f0f0;line-height:1.5}
+    .tip-list li::before{content:"✓";position:absolute;left:0;color:#48bb78;font-weight:bold}
+    .tip-list li:last-child{border-bottom:none}
+
+    footer{text-align:center;padding:18px;font-size:.75rem;color:#a0aec0;border-top:1px solid #e2e8f0;background:white}
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🏋️ Tonis Muckibude Training</h1>
+  <p>Sanfter Trainings- & Ernährungsplan – individuell angepasst</p>
+  <div class="badge-row">
+    <span class="badge">💪 You can do it!</span>
+    <span class="badge">✔️ Just do it!</span>
+    <span class="badge">30 Min / Einheit</span>
+  </div>
+</header>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('training',this)">🏋️ Trainingsplan</button>
+  <button class="tab-btn" onclick="showTab('ernaehrung',this)">🥗 Ernährungsplan</button>
+  <button class="tab-btn" onclick="showTab('hinweise',this)">⚕️ Hinweise</button>
+</nav>
+
+<!-- ===== TRAINING ===== -->
+<div id="training" class="section active">
+  <div class="info-box">
+    <strong>Vor dem Start:</strong> Bitte mit dem Arzt besprechen. Bei Diabetes Typ 2 Blutzucker <em>vor und nach</em> dem Training messen.
+  </div>
+
+  <div class="week-grid" id="weekGrid"></div>
+  <div class="detail-panel" id="detailPanel"></div>
+</div>
+
+<!-- ===== ERNÄHRUNG ===== -->
+<div id="ernaehrung" class="section">
+  <div class="info-box">
+    <strong>Ernährung bei Diabetes Typ 2:</strong> Ziel ist ein stabiler Blutzucker. Regelmäßige Mahlzeiten, wenig Zucker & Weißmehl, viel Gemüse und Ballaststoffe.
+  </div>
+  <div class="nutr-tip">💡 <strong>Grundregel:</strong> 3 Hauptmahlzeiten + 1–2 kleine Snacks. Mahlzeiten nie auslassen – das stabilisiert den Blutzucker.</div>
+
+  <div class="section-title">Tagesplan – Musterbeispiel</div>
+  <div class="meal-grid">
+    <div class="meal-card"><h3>☀️ Frühstück (7–8 Uhr)</h3><ul>
+      <li>Haferflocken (Porridge) mit Wasser od. Magermilch</li>
+      <li>1 Handvoll Beeren (Blaubeeren, Erdbeeren)</li>
+      <li>1 Ei hartgekocht oder Rührei ohne Butter</li>
+      <li>Ungesüßter Tee oder Kaffee</li>
+    </ul></div>
+    <div class="meal-card"><h3>🍎 Snack Vormittag (10 Uhr)</h3><ul>
+      <li>1 kleiner Apfel oder Birne</li>
+      <li>10 Nüsse (Walnüsse, Mandeln)</li>
+      <li>Oder: Vollkornbrot mit Hüttenkäse</li>
+    </ul></div>
+    <div class="meal-card"><h3>🍽️ Mittagessen (12–13 Uhr)</h3><ul>
+      <li>Gedünstetes Gemüse (Brokkoli, Karotten, Zucchini)</li>
+      <li>Mageres Protein: Hähnchen, Fisch oder Linsen</li>
+      <li>Kleine Portion Vollkornreis oder Kartoffeln</li>
+      <li>Salat mit Olivenöl & Essig</li>
+    </ul></div>
+    <div class="meal-card"><h3>🫐 Snack Nachmittag (15–16 Uhr)</h3><ul>
+      <li>Naturjoghurt (fettarm) mit Leinsamen</li>
+      <li>Oder: Gemüsesticks (Gurke, Paprika)</li>
+      <li>Viel Wasser oder Kräutertee</li>
+    </ul></div>
+    <div class="meal-card"><h3>🌙 Abendessen (18–19 Uhr)</h3><ul>
+      <li>Gemüsesuppe mit Hülsenfrüchten</li>
+      <li>Vollkornbrot (1–2 Scheiben) mit magerem Belag</li>
+      <li>Oder: Rührei mit gedünstetem Spinat</li>
+      <li>Kein schweres Essen nach 20 Uhr</li>
+    </ul></div>
+    <div class="meal-card"><h3>💧 Trinken – ganzen Tag</h3><ul>
+      <li>Mindestens 1,5–2 Liter täglich</li>
+      <li>Wasser, Kräutertee, ungesüßte Getränke</li>
+      <li>Kein Fruchtsaft (viel Zucker!)</li>
+      <li>Kein Alkohol oder sehr selten</li>
+    </ul></div>
+  </div>
+
+  <div class="section-title">Was ist gut, was meiden?</div>
+  <div class="meal-grid">
+    <div class="meal-card"><h3>✅ Empfohlen</h3><ul>
+      <li>Gemüse (alle Sorten, besonders grünes)</li>
+      <li>Hülsenfrüchte (Linsen, Bohnen, Kichererbsen)</li>
+      <li>Vollkornprodukte (Brot, Haferflocken, Reis)</li>
+      <li>Fettarme Milchprodukte (Joghurt, Quark)</li>
+      <li>Fisch 2× pro Woche (Lachs, Forelle)</li>
+      <li>Mageres Fleisch (Hähnchen, Pute)</li>
+      <li>Olivenöl statt Butter</li>
+      <li>Beeren & Äpfel</li>
+    </ul></div>
+    <div class="meal-card"><h3>❌ Stark reduzieren</h3><ul>
+      <li>Zucker & Süßigkeiten</li>
+      <li>Weißbrot & Weißmehlprodukte</li>
+      <li>Fruchtsäfte & Softdrinks</li>
+      <li>Fettreiche Wurstwaren</li>
+      <li>Fast Food & Fertiggerichte</li>
+      <li>Alkohol</li>
+      <li>Sahne & fette Käsesorten</li>
+    </ul></div>
+  </div>
+
+  <div class="section-title">Wochenübersicht</div>
+  <div class="week-nutr">
+    <div class="nutr-day"><div class="nd">Mo</div><div class="nc">Porridge · Hähnchen · Suppe</div></div>
+    <div class="nutr-day"><div class="nd">Di</div><div class="nc">Ei · Fisch · Brot</div></div>
+    <div class="nutr-day"><div class="nd">Mi</div><div class="nc">Haferflocken · Linsen · Joghurt</div></div>
+    <div class="nutr-day"><div class="nd">Do</div><div class="nc">Rührei · Gemüsesuppe · Quark</div></div>
+    <div class="nutr-day"><div class="nd">Fr</div><div class="nc">Porridge · Lachs · Gemüse</div></div>
+    <div class="nutr-day"><div class="nd">Sa</div><div class="nc">Brot · Pute · Salat</div></div>
+    <div class="nutr-day"><div class="nd">So</div><div class="nc">Ei · Bohnen · leichte Kost</div></div>
+  </div>
+  <div class="nutr-tip">🩺 Eine individuelle Ernährungsberatung (Diätologin) ist bei Neudiagnose Diabetes sehr empfehlenswert.</div>
+</div>
+
+<!-- ===== HINWEISE ===== -->
+<div id="hinweise" class="section">
+  <div class="section-title">Diabetes Typ 2 – Wichtiges beim Sport</div>
+  <div class="detail-panel"><ul class="tip-list">
+    <li>Blutzucker <strong>vor dem Training messen</strong>: Unter 100 mg/dl → kleinen Snack; Über 250 mg/dl → aussetzen</li>
+    <li><strong>Nie nüchtern</strong> trainieren – immer eine kleine Mahlzeit vorher</li>
+    <li>Nach dem Training Blutzucker <strong>nochmals messen</strong> – er kann weiter sinken</li>
+    <li>Immer <strong>Traubenzucker oder Obst</strong> dabei haben</li>
+    <li>Nach dem Sport <strong>Füße kontrollieren</strong>: Druckstellen, Blasen, Rötungen</li>
+    <li>Gut sitzende Sportschuhe mit <strong>guter Polsterung</strong> tragen</li>
+    <li>Bewegung <strong>senkt den Blutzucker</strong> – das ist einer der größten Vorteile!</li>
+  </ul></div>
+
+  <div class="section-title">Prostatabeschwerden – Worauf achten?</div>
+  <div class="detail-panel"><ul class="tip-list">
+    <li><strong>Kein klassisches Radfahren</strong> auf hartem Sattel – Druck kann Beschwerden verstärken</li>
+    <li>Spazierengehen und Wassergymnastik sind <strong>ideal</strong></li>
+    <li><strong>Viel trinken</strong> – mindestens 1,5–2 Liter täglich</li>
+    <li>Wenig Koffein und kein Alkohol (reizt die Blase)</li>
+    <li>Beckenbodenübungen (Kegel) – <strong>nach Rücksprache mit Urologen</strong></li>
+    <li>Regelmäßige <strong>Kontrolltermine</strong> beim Urologen einhalten</li>
+  </ul></div>
+
+  <div class="section-title">Allgemeine Sicherheitsregeln</div>
+  <div class="detail-panel"><ul class="tip-list">
+    <li>Bei <strong>Brustschmerz, Schwindel oder Atemnot</strong>: sofort aufhören</li>
+    <li>Tempo so wählen, dass man sich noch <strong>unterhalten könnte</strong></li>
+    <li>Nie in den Schmerz trainieren – <strong>weniger ist mehr</strong></li>
+    <li>Mindestens <strong>1 Ruhetag zwischen zwei Krafteinheiten</strong></li>
+    <li>Immer <strong>aufwärmen</strong> (5 Min.) und danach <strong>dehnen</strong> (5 Min.)</li>
+    <li>Bei Hitze: Training in den <strong>Morgenstunden</strong></li>
+    <li>Plan <strong>vor dem Start mit dem Arzt besprechen</strong></li>
+  </ul></div>
+  <div class="info-box"><strong>Tipp:</strong> Ein Sportphysiotherapeut für die ersten 2–3 Einheiten ist sehr hilfreich – besonders bei Muskelschwund und um die richtige Technik zu lernen.</div>
+</div>
+
+<footer>Erstellt mit Claude · Cowork Mode · Mai 2026 &nbsp;|&nbsp; Kein Ersatz für ärztlichen Rat</footer>
+
+<script>
+// ─── SVG LIBRARY ──────────────────────────────────────────────────────────────
+const S = {
+  // Chair Stand
+  stuhl: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Chair back -->
+    <line x1="22" y1="38" x2="22" y2="70" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Chair seat -->
+    <rect x="18" y="68" width="46" height="5" rx="2" fill="#94a3b8"/>
+    <!-- Chair legs -->
+    <line x1="22" y1="73" x2="22" y2="100" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="60" y1="73" x2="60" y2="100" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Person rising -->
+    <circle cx="58" cy="22" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <!-- Body leaning forward -->
+    <line x1="58" y1="32" x2="52" y2="60" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms forward for balance -->
+    <line x1="56" y1="42" x2="40" y2="52" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="56" y1="42" x2="70" y2="52" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Legs -->
+    <line x1="52" y1="60" x2="42" y2="85" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="52" y1="60" x2="62" y2="85" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arrow up -->
+    <path d="M82 55 L82 20" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M78 26 L82 18 L86 26" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Wall Push-up
+  wand: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Wall -->
+    <rect x="8" y="5" width="8" height="100" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+    <!-- Person leaning -->
+    <circle cx="70" cy="25" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <!-- Body diagonal -->
+    <line x1="70" y1="35" x2="50" y2="80" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms reaching wall -->
+    <line x1="62" y1="48" x2="28" y2="42" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="62" y1="48" x2="28" y2="58" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Hands on wall -->
+    <circle cx="28" cy="42" r="3.5" fill="#3182ce"/>
+    <circle cx="28" cy="58" r="3.5" fill="#3182ce"/>
+    <!-- Legs -->
+    <line x1="50" y1="80" x2="44" y2="105" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="50" y1="80" x2="60" y2="105" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arrow -->
+    <path d="M80 50 Q90 35 80 22" fill="none" stroke="#3182ce" stroke-width="2" stroke-dasharray="4 2"/>
+    <path d="M76 26 L80 20 L84 26" fill="none" stroke="#3182ce" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Mini Squat
+  squat: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Support bar -->
+    <line x1="12" y1="5" x2="12" y2="90" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Person with bent knees -->
+    <circle cx="58" cy="18" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <!-- Body -->
+    <line x1="58" y1="28" x2="56" y2="58" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arm to support -->
+    <line x1="57" y1="40" x2="18" y2="45" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Other arm out -->
+    <line x1="57" y1="40" x2="74" y2="50" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Bent legs -->
+    <line x1="56" y1="58" x2="44" y2="78" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="56" y1="58" x2="68" y2="78" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Feet -->
+    <line x1="44" y1="78" x2="38" y2="95" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="68" y1="78" x2="74" y2="95" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Angle lines -->
+    <path d="M80 75 Q88 55 80 38" fill="none" stroke="#3182ce" stroke-width="2" stroke-dasharray="4 2"/>
+    <path d="M76 42 L80 35 L84 42" fill="none" stroke="#3182ce" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Bicep Curl
+  bizeps: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Person standing -->
+    <circle cx="50" cy="16" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <line x1="50" y1="26" x2="50" y2="68" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Left arm straight down -->
+    <line x1="50" y1="38" x2="36" y2="58" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="58" x2="34" y2="74" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Weight in left hand -->
+    <rect x="28" y="74" width="12" height="7" rx="2" fill="#94a3b8"/>
+    <!-- Right arm bent UP (curl position) -->
+    <line x1="50" y1="38" x2="66" y2="52" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="66" y1="52" x2="74" y2="36" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Weight in right hand -->
+    <rect x="68" y="26" width="12" height="7" rx="2" fill="#3182ce"/>
+    <!-- Legs -->
+    <line x1="50" y1="68" x2="42" y2="95" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="50" y1="68" x2="58" y2="95" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arrow -->
+    <path d="M84 68 Q95 52 84 36" fill="none" stroke="#3182ce" stroke-width="2" stroke-dasharray="4 2"/>
+    <path d="M80 40 L84 33 L88 40" fill="none" stroke="#3182ce" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Bridge / Glute Raise
+  bruecke: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Floor -->
+    <line x1="5" y1="100" x2="95" y2="100" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Mat -->
+    <rect x="8" y="97" width="84" height="5" rx="2" fill="#e2e8f0"/>
+    <!-- Body lying, hips raised -->
+    <!-- Head on floor -->
+    <circle cx="15" cy="84" r="9" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <!-- Shoulders -->
+    <line x1="24" y1="84" x2="42" y2="82" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Back raised -->
+    <path d="M42 82 Q58 58 72 78" fill="none" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Upper legs -->
+    <line x1="72" y1="78" x2="78" y2="98" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Feet on floor -->
+    <line x1="78" y1="98" x2="90" y2="98" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms on floor -->
+    <line x1="32" y1="84" x2="30" y2="98" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Arrow up at hips -->
+    <path d="M58 60 L58 42" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M54 48 L58 40 L62 48" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Seated Leg Raise
+  beinheben: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Chair -->
+    <rect x="15" y="58" width="44" height="5" rx="2" fill="#94a3b8"/>
+    <line x1="18" y1="63" x2="18" y2="90" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="56" y1="63" x2="56" y2="90" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="18" y1="30" x2="18" y2="58" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Person sitting -->
+    <circle cx="50" cy="22" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <!-- Body -->
+    <line x1="50" y1="32" x2="50" y2="60" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms on thighs -->
+    <line x1="50" y1="42" x2="36" y2="55" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="50" y1="42" x2="64" y2="55" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Left leg hanging -->
+    <line x1="45" y1="63" x2="40" y2="90" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Right leg extended horizontally -->
+    <line x1="55" y1="63" x2="88" y2="58" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Foot -->
+    <line x1="88" y1="58" x2="96" y2="62" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arrow -->
+    <path d="M88 48 L88 35" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M84 41 L88 33 L92 41" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Single Leg Stand
+  einbein: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Support bar -->
+    <line x1="12" y1="5" x2="12" y2="110" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Person on one leg -->
+    <circle cx="55" cy="16" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <line x1="55" y1="26" x2="55" y2="68" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arm to support -->
+    <line x1="55" y1="40" x2="18" y2="40" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Other arm out for balance -->
+    <line x1="55" y1="40" x2="76" y2="50" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Standing leg -->
+    <line x1="55" y1="68" x2="52" y2="100" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Foot -->
+    <line x1="52" y1="100" x2="42" y2="102" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Raised leg bent -->
+    <line x1="55" y1="68" x2="68" y2="82" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="68" y1="82" x2="74" y2="72" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Balance stars -->
+    <circle cx="85" cy="35" r="3" fill="#f6ad55"/>
+    <circle cx="92" cy="45" r="2" fill="#f6ad55"/>
+    <circle cx="88" cy="55" r="2.5" fill="#f6ad55"/>
+  </svg>`,
+
+  // Calf Raise (Zehenstand)
+  zehenstand: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Support -->
+    <line x1="12" y1="5" x2="12" y2="80" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Floor -->
+    <line x1="5" y1="100" x2="95" y2="100" stroke="#94a3b8" stroke-width="2.5"/>
+    <!-- Person on tiptoes -->
+    <circle cx="55" cy="14" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <line x1="55" y1="24" x2="55" y2="64" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms -->
+    <line x1="55" y1="38" x2="20" y2="38" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="55" y1="38" x2="75" y2="44" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Legs -->
+    <line x1="55" y1="64" x2="46" y2="90" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="55" y1="64" x2="64" y2="90" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Tiptoe feet (angled) -->
+    <line x1="46" y1="90" x2="43" y2="100" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="43" y1="100" x2="38" y2="98" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="64" y1="90" x2="67" y2="100" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="67" y1="100" x2="72" y2="98" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arrows up -->
+    <path d="M82 75 L82 48" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M78 54 L82 46 L86 54" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Heel Walking
+  fersen: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Floor -->
+    <line x1="5" y1="102" x2="95" y2="102" stroke="#94a3b8" stroke-width="2.5"/>
+    <!-- Person walking on heels -->
+    <circle cx="45" cy="16" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <line x1="45" y1="26" x2="46" y2="64" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms swinging -->
+    <line x1="46" y1="38" x2="28" y2="52" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="46" y1="38" x2="66" y2="45" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Left leg (heel down, toes up) -->
+    <line x1="46" y1="64" x2="36" y2="90" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="36" y1="90" x2="30" y2="88" stroke="#1e40af" stroke-width="3" stroke-linecap="round"/><!-- heel -->
+    <line x1="30" y1="88" x2="22" y2="82" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/><!-- toe up -->
+    <!-- Right leg forward -->
+    <line x1="46" y1="64" x2="58" y2="88" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="58" y1="88" x2="68" y2="90" stroke="#1e40af" stroke-width="3" stroke-linecap="round"/>
+    <line x1="68" y1="90" x2="78" y2="84" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Direction arrows -->
+    <path d="M82 70 L92 55" stroke="#3182ce" stroke-width="2" stroke-dasharray="4 2" stroke-linecap="round"/>
+  </svg>`,
+
+  // Hip Circles
+  hueft: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Person standing -->
+    <circle cx="50" cy="16" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <line x1="50" y1="26" x2="50" y2="68" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Hands on hips -->
+    <line x1="50" y1="40" x2="36" y2="50" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="34" cy="52" r="3.5" fill="#1e40af"/>
+    <line x1="50" y1="40" x2="64" y2="50" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="66" cy="52" r="3.5" fill="#1e40af"/>
+    <!-- Legs -->
+    <line x1="50" y1="68" x2="42" y2="100" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="50" y1="68" x2="58" y2="100" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Circular arrow around hips -->
+    <path d="M 28 62 A 22 14 0 1 1 26 68" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 22 64 L 26 72 L 32 66" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Chest Opener
+  brust: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Person standing -->
+    <circle cx="50" cy="16" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <line x1="50" y1="26" x2="50" y2="68" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms spread wide back -->
+    <line x1="50" y1="36" x2="20" y2="46" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="46" x2="14" y2="38" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="50" y1="36" x2="80" y2="46" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="80" y1="46" x2="86" y2="38" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Chest open indicator -->
+    <path d="M 36 30 Q 50 24 64 30" fill="none" stroke="#3182ce" stroke-width="2" stroke-dasharray="3 2"/>
+    <!-- Legs -->
+    <line x1="50" y1="68" x2="42" y2="100" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="50" y1="68" x2="58" y2="100" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arrows pointing back -->
+    <path d="M 10 50 L 5 44" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 90 50 L 95 44" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+
+  // Spinal Rotation
+  rotation: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Chair seat -->
+    <rect x="20" y="62" width="48" height="5" rx="2" fill="#94a3b8"/>
+    <line x1="24" y1="67" x2="24" y2="90" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="64" y1="67" x2="64" y2="90" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Person sitting, upper body twisted -->
+    <circle cx="55" cy="20" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <!-- Body -->
+    <line x1="55" y1="30" x2="50" y2="64" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms crossed, showing rotation -->
+    <line x1="55" y1="42" x2="38" y2="38" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="55" y1="42" x2="72" y2="50" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Legs down -->
+    <line x1="45" y1="65" x2="38" y2="88" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="55" y1="65" x2="58" y2="88" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Rotation arrow -->
+    <path d="M 72 25 A 18 18 0 0 1 38 28" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 34 24 L 38 32 L 44 26" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Walking
+  gehen: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Floor / path -->
+    <line x1="5" y1="102" x2="95" y2="102" stroke="#94a3b8" stroke-width="2.5"/>
+    <!-- Person walking -->
+    <circle cx="48" cy="15" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <line x1="48" y1="25" x2="50" y2="65" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms swinging -->
+    <line x1="49" y1="38" x2="30" y2="50" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="49" y1="38" x2="68" y2="32" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Walking poles -->
+    <line x1="28" y1="50" x2="20" y2="78" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="68" y1="32" x2="82" y2="60" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Legs in stride -->
+    <line x1="50" y1="65" x2="36" y2="90" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="50" y1="65" x2="66" y2="85" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Feet -->
+    <line x1="36" y1="90" x2="26" y2="95" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="66" y1="85" x2="78" y2="90" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Direction arrow -->
+    <path d="M 78 20 L 92 20" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 88 16 L 94 20 L 88 24" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+
+  // Rest day
+  ruhe: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Bed/couch shape -->
+    <rect x="12" y="60" width="76" height="28" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="12" y="52" width="20" height="16" rx="5" fill="#cbd5e0" stroke="#94a3b8" stroke-width="1.5"/>
+    <!-- Person lying -->
+    <circle cx="22" cy="52" r="9" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <line x1="30" y1="52" x2="78" y2="58" stroke="#1e40af" stroke-width="3" stroke-linecap="round"/>
+    <!-- Z Z Z -->
+    <text x="55" y="30" font-size="14" fill="#3182ce" font-weight="bold" font-family="Arial">Z</text>
+    <text x="67" y="20" font-size="11" fill="#3182ce" font-weight="bold" font-family="Arial">Z</text>
+    <text x="76" y="12" font-size="8" fill="#3182ce" font-weight="bold" font-family="Arial">Z</text>
+  </svg>`,
+
+  // Neck Stretch
+  nacken: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- Chair seat -->
+    <rect x="20" y="68" width="48" height="5" rx="2" fill="#94a3b8"/>
+    <line x1="24" y1="73" x2="24" y2="96" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <line x1="64" y1="73" x2="64" y2="96" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <!-- Person sitting, head tilted -->
+    <circle cx="58" cy="22" r="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2.2"/>
+    <!-- Neck tilted -->
+    <line x1="52" y1="30" x2="50" y2="40" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Body -->
+    <line x1="50" y1="40" x2="50" y2="70" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arms -->
+    <line x1="50" y1="48" x2="36" y2="58" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <line x1="50" y1="48" x2="64" y2="60" stroke="#1e40af" stroke-width="2" stroke-linecap="round"/>
+    <!-- Legs -->
+    <line x1="45" y1="71" x2="38" y2="95" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="55" y1="71" x2="62" y2="95" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arrow showing tilt direction -->
+    <path d="M 72 18 Q 80 25 72 36" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 68 32 L 72 40 L 78 34" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`,
+};
+
+// ─── DAY DATA ──────────────────────────────────────────────────────────────────
+const days = {
+  mo: {
+    name:'Montag', type:'Kraft', pill:'kraft', icon:'💪',
+    dur:'30 Min.', warm:5, main:20, cool:5,
+    desc:'Sanftes Ganzkörper-Krafttraining. Alle Übungen langsam und kontrolliert ausführen.',
+    warmup:['Auf der Stelle gehen: 3 Min.','Schulterkreisen vor & zurück: je 8×','Fußkreisen sitzend: 8× pro Seite'],
+    exercises:[
+      {svg:'stuhl', name:'Aufstehen vom Stuhl', sets:'1 × 8', equip:'Stuhl', tip:'Langsam ohne Schwung – Knie über Füße'},
+      {svg:'wand', name:'Wandliegestütze', sets:'1 × 8', equip:'Wand', tip:'Körper gerade wie ein Brett halten'},
+      {svg:'squat', name:'Mini-Kniebeugen', sets:'1 × 8', equip:'Stuhllehne', tip:'Nur leicht in die Knie, Rücken gerade'},
+      {svg:'bizeps', name:'Bizeps-Curls', sets:'1 × 10', equip:'0,5 L Flasche', tip:'Ellbogen nah am Körper, langsam'},
+      {svg:'bruecke', name:'Gesäßheben im Liegen', sets:'1 × 10', equip:'Gymnastikmatte', tip:'Hüfte hoch heben, oben kurz halten'},
+      {svg:'beinheben', name:'Beinheben im Sitzen', sets:'1 × 8', equip:'Stuhl', tip:'Bein strecken und 2 Sek. oben halten'},
+    ],
+    cooldown:['Wade dehnen an der Wand: 20 Sek. je Seite','Oberschenkel vorne dehnen: 20 Sek. je Seite','Bauchatmung: 5× tief ein- und ausatmen'],
+    rest:'60 Sek. Pause zwischen den Übungen',
+  },
+  di: {
+    name:'Dienstag', type:'Leichter Ruhetag', pill:'ruhe', icon:'🚶',
+    dur:'Optional 20 Min.', warm:0, main:20, cool:5,
+    desc:'Kein strukturiertes Training. Optional ein sehr gemächlicher Spaziergang – nur wenn Sie sich gut fühlen.',
+    warmup:[],
+    exercises:[
+      {svg:'gehen', name:'Spaziergang (optional)', sets:'15–20 Min.', equip:'Gute Schuhe', tip:'Sehr gemächlich – Gespräch muss möglich sein'},
+    ],
+    cooldown:['Beine leicht dehnen (Waden, Oberschenkel)','Füße hochlegen & entspannen'],
+    rest:'',
+  },
+  mi: {
+    name:'Mittwoch', type:'Ausdauer', pill:'ausdauer', icon:'🌿',
+    dur:'30 Min.', warm:5, main:20, cool:5,
+    desc:'Leichtes Herzkreislauf-Training. Ziel: Herzfrequenz leicht erhöhen. Ein Gespräch muss immer noch möglich sein!',
+    warmup:['Langsam losgehen: 5 Min.'],
+    exercises:[
+      {svg:'gehen', name:'Spazierengehen', sets:'20 Min.', equip:'Wanderstöcke empf.', tip:'Ebener Boden, gemächliches Tempo'},
+      {svg:'ruhe', name:'ODER: Wasser-Gehen', sets:'20 Min.', equip:'Schwimmbad', tip:'Im Wasser gehen (Brusthöhe) – sehr gelenkschonend'},
+    ],
+    cooldown:['Langsam ausschlendern: 5 Min.','Beine dehnen: Waden, Oberschenkel'],
+    rest:'',
+  },
+  do: {
+    name:'Donnerstag', type:'Ruhetag', pill:'ruhe', icon:'😴',
+    dur:'Kein Training', warm:0, main:0, cool:0,
+    desc:'Vollständiger Ruhetag. Muskeln wachsen in der Erholung – dieser Tag ist genauso wichtig wie das Training!',
+    warmup:[],
+    exercises:[
+      {svg:'ruhe', name:'Vollständige Erholung', sets:'–', equip:'–', tip:'Ausreichend schlafen, viel trinken'},
+    ],
+    cooldown:[],
+    rest:'',
+  },
+  fr: {
+    name:'Freitag', type:'Kraft', pill:'kraft', icon:'💪',
+    dur:'30 Min.', warm:5, main:20, cool:5,
+    desc:'Zweite Krafteinheit – gleiche Übungen wie Montag. Sie werden merken, dass es schon etwas leichter fällt!',
+    warmup:['Auf der Stelle gehen: 3 Min.','Schulterkreisen vor & zurück: je 8×','Fußkreisen sitzend: 8× pro Seite'],
+    exercises:[
+      {svg:'stuhl', name:'Aufstehen vom Stuhl', sets:'1 × 8', equip:'Stuhl', tip:'Langsam ohne Schwung'},
+      {svg:'wand', name:'Wandliegestütze', sets:'1 × 8', equip:'Wand', tip:'Körper gerade halten'},
+      {svg:'squat', name:'Mini-Kniebeugen', sets:'1 × 8', equip:'Stuhllehne', tip:'Nur leicht in die Knie'},
+      {svg:'bizeps', name:'Bizeps-Curls', sets:'1 × 10', equip:'0,5 L Flasche', tip:'Langsam und kontrolliert'},
+      {svg:'bruecke', name:'Gesäßheben im Liegen', sets:'1 × 10', equip:'Gymnastikmatte', tip:'Hüfte hoch, kurz halten'},
+      {svg:'beinheben', name:'Beinheben im Sitzen', sets:'1 × 8', equip:'Stuhl', tip:'2 Sek. oben halten'},
+    ],
+    cooldown:['Wade dehnen: 20 Sek. je Seite','Oberschenkel dehnen: 20 Sek. je Seite','Bauchatmung: 5× tief ein- und ausatmen'],
+    rest:'60 Sek. Pause zwischen den Übungen',
+  },
+  sa: {
+    name:'Samstag', type:'Mobilität & Balance', pill:'mobil', icon:'🧘',
+    dur:'30 Min.', warm:3, main:20, cool:7,
+    desc:'Sanfte Mobilisierung, Dehnen und Gleichgewicht. Wichtig für Sturzprävention und Beweglichkeit im Alltag.',
+    warmup:['Langsam im Zimmer gehen: 3 Min.'],
+    exercises:[
+      {svg:'einbein', name:'Einbeinstand', sets:'3 × 10–15 Sek.', equip:'Stuhllehne', tip:'Stuhllehne festhalten, Blick fixieren'},
+      {svg:'zehenstand', name:'Zehenstand', sets:'3 × 8', equip:'Stuhllehne', tip:'Langsam hoch und wieder runter'},
+      {svg:'fersen', name:'Fersengehen', sets:'3 × 10 Schritte', equip:'Wand entlang', tip:'Zehen hochziehen, auf Fersen gehen'},
+      {svg:'hueft', name:'Hüftkreisen', sets:'2 × 8', equip:'–', tip:'Große, langsame Kreise, beide Richtungen'},
+      {svg:'brust', name:'Brustöffnen', sets:'2 × 8', equip:'–', tip:'Arme nach hinten, Brust nach vorne öffnen'},
+      {svg:'rotation', name:'Rückenrotation sitzend', sets:'2 × 5', equip:'Stuhl', tip:'Oberkörper langsam drehen, nicht reißen'},
+      {svg:'nacken', name:'Nacken dehnen', sets:'2 × 20 Sek.', equip:'–', tip:'Kopf zur Seite neigen – sehr sanft'},
+    ],
+    cooldown:['Tief in den Bauch atmen: 4 Sek. ein – 6 Sek. aus','Schultern fallen lassen, ganz entspannen'],
+    rest:'30 Sek. Pause nach jeder Übung',
+  },
+  so: {
+    name:'Sonntag', type:'Ruhetag', pill:'ruhe', icon:'😴',
+    dur:'Kein Training', warm:0, main:0, cool:0,
+    desc:'Vollständiger Ruhetag. Gut erholen für die neue Woche. Ein kurzer Spaziergang mit Familie ist natürlich immer gut!',
+    warmup:[],
+    exercises:[
+      {svg:'ruhe', name:'Vollständige Erholung', sets:'–', equip:'–', tip:'Schlafen, entspannen, Natur genießen'},
+    ],
+    cooldown:[],
+    rest:'',
+  },
+};
+
+const dayOrder = ['mo','di','mi','do','fr','sa','so'];
+const dayLabels = {mo:'Mo',di:'Di',mi:'Mi',do:'Do',fr:'Fr',sa:'Sa',so:'So'};
+const bgClass = {kraft:'bg-kraft',ausdauer:'bg-ausdauer',mobil:'bg-mobil',ruhe:'bg-ruhe'};
+
+// Build week grid
+function buildWeek(){
+  const grid = document.getElementById('weekGrid');
+  dayOrder.forEach((key,i)=>{
+    const d = days[key];
+    const icons = {kraft:'💪',ausdauer:'🌿',mobil:'🧘',ruhe:'😴'};
+    const div = document.createElement('div');
+    div.className = `day-card ${bgClass[d.pill]}`;
+    div.id = `card-${key}`;
+    div.innerHTML = `<div class="day-name">${dayLabels[key]}</div><div class="day-icon">${d.icon}</div><div class="day-type type-${d.pill}">${d.type}</div>`;
+    div.onclick = ()=>showDay(key);
+    grid.appendChild(div);
+  });
+}
+
+function showDay(key){
+  dayOrder.forEach(k=>{
+    const c = document.getElementById(`card-${k}`);
+    if(c) c.classList.remove('active-day');
+  });
+  document.getElementById(`card-${key}`).classList.add('active-day');
+  const d = days[key];
+  const panel = document.getElementById('detailPanel');
+
+  // Time bar
+  let timeBar = '';
+  if(d.main > 0){
+    timeBar = `<div class="time-bar">
+      ${d.warm>0?`<div class="time-block tb-warm"><div class="tb-label">Aufwärmen</div><div class="tb-val">${d.warm} Min</div></div>`:''}
+      ${d.main>0?`<div class="time-block tb-main"><div class="tb-label">Hauptteil</div><div class="tb-val">${d.main} Min</div></div>`:''}
+      ${d.cool>0?`<div class="time-block tb-cool"><div class="tb-label">Abkühlen</div><div class="tb-val">${d.cool} Min</div></div>`:''}
+      <div class="time-block tb-total"><div class="tb-label">Gesamt</div><div class="tb-val">${d.dur}</div></div>
+    </div>`;
+  }
+
+  // Warmup
+  let warmHtml = '';
+  if(d.warmup.length){
+    warmHtml = `<div class="section-title">Aufwärmen (${d.warm} Min.)</div>
+    <ul class="wc-list">${d.warmup.map(w=>`<li>${w}</li>`).join('')}</ul>`;
+  }
+
+  // Exercise cards
+  const exCards = d.exercises.map(ex=>`
+    <div class="ex-card">
+      <div class="ex-svg">${S[ex.svg]||''}</div>
+      <div class="ex-info">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-meta">
+          <span class="ex-tag green">${ex.sets}</span>
+          <span class="ex-tag">${ex.equip}</span>
+        </div>
+        <div class="ex-tip">${ex.tip}</div>
+      </div>
+    </div>`).join('');
+
+  // Cooldown
+  let coolHtml = '';
+  if(d.cooldown.length){
+    coolHtml = `<div class="section-title">Abkühlen & Dehnen (${d.cool} Min.)</div>
+    <ul class="wc-list">${d.cooldown.map(c=>`<li>${c}</li>`).join('')}</ul>`;
+  }
+
+  // Rest note
+  const restHtml = d.rest ? `<div class="rest-note">⏱ <strong>Pause:</strong> ${d.rest}</div>` : '';
+
+  panel.innerHTML = `
+    <h2>${d.name}</h2>
+    <div class="detail-subtitle">${d.desc}</div>
+    <span class="pill pill-${d.pill}">${d.type}</span>
+    ${timeBar}
+    ${warmHtml}
+    ${d.warmup.length?`<div class="section-title">Übungen</div>`:''}
+    ${restHtml}
+    <div class="ex-grid">${exCards}</div>
+    ${coolHtml}
+  `;
+}
+
+function showTab(id, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+buildWeek();
+showDay('mo');
+</script>
+</body>
+</html>
